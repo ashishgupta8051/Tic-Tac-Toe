@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.game.tic_tac_toe"
+        applicationId "com.developer.tictactoe"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
