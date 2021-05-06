@@ -1,9 +1,13 @@
-package com.developer.tictactoe;
+package com.tictactoe.gaming;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,14 +15,33 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.OnPaidEventListener;
+import com.google.android.gms.ads.ResponseInfo;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 public class MainActivity extends AppCompatActivity {
 
     private int grid_size;
-    TableLayout gameBoard;
-    TextView txt_turn;
-    char [][] my_board;
-    char turn;
+    private TableLayout gameBoard;
+    private TextView txt_turn;
+    private char [][] my_board;
+    private char turn;
+    private AdView adView;
+    private InterstitialAd interstitialAd;
+    private Button reset_btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +53,49 @@ public class MainActivity extends AppCompatActivity {
         my_board = new char [grid_size][grid_size];
         gameBoard = (TableLayout) findViewById(R.id.mainBoard);
         txt_turn = (TextView) findViewById(R.id.turn);
+        reset_btn = (Button) findViewById(R.id.reset);
+
+        adView = findViewById(R.id.adView);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+
+            }
+        });
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                Log.d("TAG",adError.toString());
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+        loadInterstitialAd();
 
         resetBoard();
         txt_turn.setText("Turn: "+turn);
@@ -43,13 +109,70 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Button reset_btn = (Button) findViewById(R.id.reset);
         reset_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,MainActivity.class);
+                loadAdd();
+               /* Intent intent = new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
-                finish();
+                finish();*/
+            }
+        });
+    }
+
+    private void loadAdd() {
+        if (interstitialAd != null) {
+            interstitialAd.show(MainActivity.this);
+        } else {
+            Log.d("TAG", "The interstitial ad wasn't ready yet.");
+        }
+    }
+
+    private void loadInterstitialAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(MainActivity.this,"ca-app-pub-6045011449826065/8763623635", adRequest,
+                new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                MainActivity.this.interstitialAd = interstitialAd;
+                interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        // Called when fullscreen content is dismissed.
+                        MainActivity.this.interstitialAd = null;
+                        Log.d("TAG", "The ad was dismissed.");
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        // Called when fullscreen content failed to show.
+                        MainActivity.this.interstitialAd = null;
+                        Log.d("TAG", "The ad failed to show.");
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        // Called when fullscreen content is shown.
+                        // Make sure to set your reference to null so you don't
+                        // show it a second time.
+                        Log.d("TAG", "The ad was shown.");
+                    }
+                });
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+                Log.d("TAG", loadAdError.getMessage());
+                interstitialAd = null;
+
+                String error =
+                        String.format(
+                                "domain: %s, code: %d, message: %s",
+                                loadAdError.getDomain(), loadAdError.getCode(), loadAdError.getMessage());
+                Toast.makeText(
+                        MainActivity.this, "onAdFailedToLoad() with error: " + error, Toast.LENGTH_SHORT)
+                        .show();
             }
         });
     }

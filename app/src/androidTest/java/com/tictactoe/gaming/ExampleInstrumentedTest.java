@@ -1,4 +1,4 @@
-package com.developer.tictactoe;
+package com.tictactoe.gaming;
 
 import android.content.Context;
 
