@@ -32,7 +32,6 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 public class MainActivity extends AppCompatActivity {
-
     private int grid_size;
     private TableLayout gameBoard;
     private TextView txt_turn;
