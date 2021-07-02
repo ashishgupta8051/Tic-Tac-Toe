@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
@@ -53,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
         gameBoard = (TableLayout) findViewById(R.id.mainBoard);
         txt_turn = (TextView) findViewById(R.id.turn);
         reset_btn = (Button) findViewById(R.id.reset);
-
         adView = findViewById(R.id.adView);
 
+        //Initialize Mobile Ads
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
@@ -63,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Banner Ads
+        adView = new AdView(this);
+        adView.setAdSize(AdSize.BANNER);
+        adView.setAdUnitId(String.valueOf(R.string.banner));
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
         adView.setAdListener(new AdListener() {
@@ -94,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                 // to the app after tapping on an ad.
             }
         });
+
+        //Interstitial Ads
         loadInterstitialAd();
 
         resetBoard();
@@ -129,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadInterstitialAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(MainActivity.this,"ca-app-pub-6045011449826065/8763623635", adRequest,
+        InterstitialAd.load(MainActivity.this, String.valueOf(R.string.interstitial), adRequest,
                 new InterstitialAdLoadCallback() {
             @Override
             public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
@@ -164,14 +171,6 @@ public class MainActivity extends AppCompatActivity {
                 // Handle the error
                 Log.d("TAG", loadAdError.getMessage());
                 interstitialAd = null;
-
-                String error =
-                        String.format(
-                                "domain: %s, code: %d, message: %s",
-                                loadAdError.getDomain(), loadAdError.getCode(), loadAdError.getMessage());
-                Toast.makeText(
-                        MainActivity.this, "onAdFailedToLoad() with error: " + error, Toast.LENGTH_SHORT)
-                        .show();
             }
         });
     }

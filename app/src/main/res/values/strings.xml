@@ -7,7 +7,10 @@
     <string name="O">" O "</string>
     <string name="none">" "</string>
 
-    <string name="banner">"ca-app-pub-6045011449826065/3922360493"</string>
+    <string name="banner">"ca-app-pub-6045011449826065/9347962434"</string>
     <string name="appId">"ca-app-pub-6045011449826065~3817584560"</string>
+    <string name="interstitial">ca-app-pub-6045011449826065/2656477299</string>
+    
+    <string name="testId">ca-app-pub-3940256099942544/1033173712</string>
 
 </resources>
